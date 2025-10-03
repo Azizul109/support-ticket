@@ -7,6 +7,7 @@ php artisan key:generate
 
 # Run migrations
 php artisan migrate --force
+php artisan db:seed --class=AdminUserSeeder
 
 # Clear cache
 php artisan config:clear
