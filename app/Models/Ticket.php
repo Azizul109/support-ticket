@@ -12,13 +12,31 @@ class Ticket extends Model
     protected $fillable = [
         'subject',
         'description',
+        'category',
         'priority',
         'status',
+        'attachment',
         'user_id',
+        'assigned_admin_id',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function assignedAdmin()
+    {
+        return $this->belongsTo(User::class, 'assigned_admin_id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function chatMessages()
+    {
+        return $this->hasMany(ChatMessage::class);
     }
 }
