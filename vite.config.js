@@ -27,4 +27,8 @@ export default defineConfig({
     define: {
         "process.env": {},
     },
+    build: {
+        // Ensure assets are built with absolute URLs
+        assetsDir: 'assets',
+    },
 });
