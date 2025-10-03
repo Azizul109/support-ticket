@@ -31,4 +31,21 @@ class ChatMessageEvent implements ShouldBroadcast
     {
         return 'chat.message';
     }
+
+    public function broadcastWith()
+    {
+        return [
+            'id' => $this->chatMessage->id,
+            'message' => $this->chatMessage->message,
+            'user' => [
+                'id' => $this->chatMessage->user->id,
+                'name' => $this->chatMessage->user->name,
+                'role' => $this->chatMessage->user->role,
+            ],
+            'ticket_id' => $this->chatMessage->ticket_id,
+            'is_read' => $this->chatMessage->is_read,
+            'created_at' => $this->chatMessage->created_at->toDateTimeString(),
+            'updated_at' => $this->chatMessage->updated_at->toDateTimeString(),
+        ];
+    }
 }

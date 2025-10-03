@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('subject');
             $table->text('description');
-            $table->enum('category', ['technical', 'billing', 'general', 'feature_request']);
+            $table->enum('category', ['technical', 'billing', 'general', 'feature_request'])->default('general');
             $table->enum('priority', ['low', 'medium', 'high', 'urgent']);
             $table->enum('status', ['open', 'in_progress', 'resolved', 'closed'])->default('open');
             $table->string('attachment')->nullable();

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
+import ChatWindow from "../Chat/ChatWindow";
 
 const TicketDetail = () => {
     const { id } = useParams();
@@ -10,11 +11,13 @@ const TicketDetail = () => {
     const [ticket, setTicket] = useState(null);
     const [loading, setLoading] = useState(true);
     const [comment, setComment] = useState("");
-    const [chatMessage, setChatMessage] = useState("");
     const [activeTab, setActiveTab] = useState("details");
+    const [showChat, setShowChat] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
         fetchTicket();
+        checkUnreadMessages();
     }, [id]);
 
     const fetchTicket = async () => {
@@ -26,6 +29,15 @@ const TicketDetail = () => {
             navigate("/tickets");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const checkUnreadMessages = async () => {
+        try {
+            const response = await axios.get("/api/chat/unread-count");
+            setUnreadCount(response.data.unread_count);
+        } catch (error) {
+            console.error("Error checking unread messages:", error);
         }
     };
 
@@ -44,21 +56,6 @@ const TicketDetail = () => {
         }
     };
 
-    const handleChatSubmit = async (e) => {
-        e.preventDefault();
-        if (!chatMessage.trim()) return;
-
-        try {
-            await axios.post(`/api/tickets/${id}/chat`, {
-                message: chatMessage,
-            });
-            setChatMessage("");
-            // In a real app, we'd use WebSockets to update messages in real-time
-        } catch (error) {
-            console.error("Error sending message:", error);
-        }
-    };
-
     const updateTicketStatus = async (newStatus) => {
         try {
             await axios.patch(`/api/tickets/${id}`, { status: newStatus });
@@ -70,14 +67,33 @@ const TicketDetail = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-64">
-                Loading ticket...
+            <div className="max-w-6xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-center items-center h-64">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                        <p className="mt-4 text-gray-600">Loading ticket...</p>
+                    </div>
+                </div>
             </div>
         );
     }
 
     if (!ticket) {
-        return <div>Ticket not found</div>;
+        return (
+            <div className="max-w-6xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        Ticket not found
+                    </h1>
+                    <button
+                        onClick={() => navigate("/tickets")}
+                        className="mt-4 btn-primary"
+                    >
+                        Back to Tickets
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     const getStatusColor = (status) => {
@@ -91,7 +107,15 @@ const TicketDetail = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto py-6">
+        <div className="max-w-6xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            {/* Chat Window */}
+            <ChatWindow
+                ticketId={ticket.id}
+                isOpen={showChat}
+                onClose={() => setShowChat(false)}
+            />
+
+            {/* Header */}
             <div className="flex justify-between items-start mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">
@@ -100,11 +124,37 @@ const TicketDetail = () => {
                     <p className="text-gray-600 mt-2">Ticket #{ticket.id}</p>
                 </div>
                 <div className="flex space-x-3">
+                    {/* Chat Button */}
+                    <button
+                        onClick={() => setShowChat(true)}
+                        className="btn-primary flex items-center relative"
+                    >
+                        <svg
+                            className="w-5 h-5 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                            />
+                        </svg>
+                        Live Chat
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                {unreadCount}
+                            </span>
+                        )}
+                    </button>
+
                     {user && user.role === "admin" && (
                         <select
                             value={ticket.status}
                             onChange={(e) => updateTicketStatus(e.target.value)}
-                            className="border border-gray-300 rounded-md p-2"
+                            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="open">Open</option>
                             <option value="in_progress">In Progress</option>
@@ -122,6 +172,7 @@ const TicketDetail = () => {
                 </div>
             </div>
 
+            {/* Rest of the TicketDetail component remains the same */}
             {/* Tabs */}
             <div className="border-b border-gray-200 mb-6">
                 <nav className="-mb-px flex space-x-8">
@@ -146,7 +197,7 @@ const TicketDetail = () => {
                         Comments
                     </button>
                     <button
-                        onClick={() => setActiveTab("chat")}
+                        onClick={() => setShowChat(true)}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${
                             activeTab === "chat"
                                 ? "border-blue-500 text-blue-600"

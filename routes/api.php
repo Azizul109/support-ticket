@@ -23,8 +23,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tickets/{ticket}/comments', [CommentController::class, 'store']);
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 
-    // Chat
+    // Chat Routes
     Route::get('/tickets/{ticket}/chat', [ChatController::class, 'getMessages']);
     Route::post('/tickets/{ticket}/chat', [ChatController::class, 'sendMessage']);
     Route::post('/tickets/{ticket}/chat/mark-read', [ChatController::class, 'markAsRead']);
+    Route::get('/tickets/{ticket}/chat/check-new', [ChatController::class, 'checkNewMessages']);
+    Route::get('/chat/unread-count', [ChatController::class, 'getUnreadCount']);
 });
