@@ -11,8 +11,16 @@
 
     @viteReactRefresh     
     @vite(['resources/css/app.css', 'resources/js/app.jsx'])
+
+    @production
+        <link rel="stylesheet" href="{{ secure_asset('build/assets/app.css') }}">
+    @endproduction
 </head>
 <body class="font-sans antialiased">
     <div id="app"></div>
+
+    @production
+        <script src="{{ secure_asset('build/assets/app.js') }}"></script>
+    @endproduction
 </body>
 </html>
