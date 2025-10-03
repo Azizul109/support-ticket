@@ -1,28 +1,14 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
     margin: 0;
     padding: 0;
+    background-color: #f8f9fa;
 }
 
 * {
     box-sizing: border-box;
-}
-
-input, button {
-    font-family: inherit;
-}
-
-input {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-button {
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-button:disabled {
-    cursor: not-allowed;
 }
