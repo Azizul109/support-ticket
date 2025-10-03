@@ -1,14 +1,15 @@
 #!/bin/bash
 
-echo "Starting deployment process..."
+echo "🚀 Starting Laravel application..."
 
-# Generate app key if not set
-if [ -z "$APP_KEY" ]; then
-    echo "Generating application key..."
-    php artisan key:generate
+# Generate .env file if it doesn't exist
+if [ ! -f .env ]; then
+    echo "Creating .env file from .env.example..."
+    cp .env.production .env
 fi
 
 # Run migrations
+echo "Running database migrations..."
 php artisan migrate --force
 php artisan db:seed --force
 
@@ -17,11 +18,6 @@ php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
 
-# Build frontend assets
-npm run build
-
 # Start server
-echo "Starting PHP server..."
+echo "Starting PHP server on port $PORT..."
 php artisan serve --host=0.0.0.0 --port=$PORT
-
-echo "Deployment completed!"
