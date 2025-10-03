@@ -30,9 +30,7 @@ class ChatController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        // Broadcast the message (you can use Laravel Echo with Pusher)
-        broadcast(new \App\Events\ChatMessage($chatMessage))->toOthers();
-
+        // For now, we'll use polling. Later we can integrate Pusher for real-time.
         return response()->json($chatMessage->load('user'), 201);
     }
 
