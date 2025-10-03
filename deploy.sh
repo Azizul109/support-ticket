@@ -10,7 +10,7 @@ fi
 
 # Run migrations
 php artisan migrate --force
-php artisan db:seed --class=AdminUserSeeder
+php artisan db:seed --force
 
 # Clear cache
 php artisan config:clear
