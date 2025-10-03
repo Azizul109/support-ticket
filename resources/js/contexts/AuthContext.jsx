@@ -21,7 +21,13 @@ export const AuthProvider = ({ children }) => {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             try {
                 const response = await axios.get('/api/user');
-                setUser(response.data);
+                // Ensure user object has isAdmin property
+                const userData = {
+                    ...response.data,
+                    isAdmin: response.data.role === 'admin',
+                    isCustomer: response.data.role === 'customer'
+                };
+                setUser(userData);
             } catch (error) {
                 localStorage.removeItem('token');
                 delete axios.defaults.headers.common['Authorization'];
@@ -32,31 +38,50 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         const response = await axios.post('/api/login', credentials);
-        const { access_token, user } = response.data;
+        const { access_token, user: userData } = response.data;
         
         localStorage.setItem('token', access_token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-        setUser(user);
         
+        // Add isAdmin property to user object
+        const userWithMethods = {
+            ...userData,
+            isAdmin: userData.role === 'admin',
+            isCustomer: userData.role === 'customer'
+        };
+        
+        setUser(userWithMethods);
         return response.data;
     };
 
     const register = async (userData) => {
         const response = await axios.post('/api/register', userData);
-        const { access_token, user } = response.data;
+        const { access_token, user: userDataFromResponse } = response.data;
         
         localStorage.setItem('token', access_token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-        setUser(user);
         
+        // Add isAdmin property to user object
+        const userWithMethods = {
+            ...userDataFromResponse,
+            isAdmin: userDataFromResponse.role === 'admin',
+            isCustomer: userDataFromResponse.role === 'customer'
+        };
+        
+        setUser(userWithMethods);
         return response.data;
     };
 
     const logout = async () => {
-        await axios.post('/api/logout');
-        localStorage.removeItem('token');
-        delete axios.defaults.headers.common['Authorization'];
-        setUser(null);
+        try {
+            await axios.post('/api/logout');
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            localStorage.removeItem('token');
+            delete axios.defaults.headers.common['Authorization'];
+            setUser(null);
+        }
     };
 
     const value = {
@@ -66,6 +91,17 @@ export const AuthProvider = ({ children }) => {
         logout,
         loading
     };
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <AuthContext.Provider value={value}>
