@@ -4,8 +4,5 @@ cmds = ["curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr
 [phases.install]
 cmds = ["composer install --no-dev --optimize-autoloader", "npm ci", "npm run build"]
 
-[phases.build]
-cmds = ["php artisan key:generate --no-interaction --force"]
-
 [start]
 cmd = "php artisan serve --host=0.0.0.0 --port=$PORT"
