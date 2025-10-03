@@ -25,36 +25,10 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
     ];
 
     public function tickets()
     {
-        return $this->hasMany(Ticket::class, 'user_id');
-    }
-
-    public function assignedTickets()
-    {
-        return $this->hasMany(Ticket::class, 'assigned_admin_id');
-    }
-
-    public function comments()
-    {
-        return $this->hasMany(Comment::class);
-    }
-
-    public function chatMessages()
-    {
-        return $this->hasMany(ChatMessage::class);
-    }
-
-    public function isAdmin()
-    {
-        return $this->role === 'admin';
-    }
-
-    public function isCustomer()
-    {
-        return $this->role === 'customer';
+        return $this->hasMany(Ticket::class);
     }
 }
